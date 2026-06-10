@@ -1,0 +1,50 @@
+{
+  "name": "@raygroup/defi-ux-mcp",
+  "version": "0.1.0",
+  "description": "Ray Group's DeFi UX MCP server — gives AI agents direct access to the Ray Group DeFi UX rubric, named patterns, and cognitive-bias glossary.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "raygroup-defi-ux-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "inspect": "npx -y @modelcontextprotocol/inspector node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "defi",
+    "web3",
+    "ux",
+    "user-experience",
+    "rubric",
+    "ray-group"
+  ],
+  "author": "Ray Group <madalina@raygroup.uk> (https://raygroup.uk)",
+  "license": "MIT",
+  "homepage": "https://raygroup.uk/products/defi-ux-mcp/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raygroup/raygroup-defi-ux-mcp.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
