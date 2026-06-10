@@ -157,6 +157,6 @@ MIT. See [LICENSE](./LICENSE).
 
 ## Author
 
-Built and maintained by [Ray Group](https://raygroup.uk) — an independent UK-based product practice grounded in human-computer interaction. Founder: [Madalina Raicu](https://www.linkedin.com/in/madalinaraicu) — Senior Software Engineer; previously at BlackRock on Aladdin; international speaker on UX in Web3 and DeFi.
+Built and maintained by [Ray Group](https://raygroup.uk) — an independent UK-based product practice grounded in human-computer interaction. Founder: [Madalina Raicu](https://www.linkedin.com/in/madalinaraicu) — Senior UX Engineer specialised in HCI; international speaker on UX in Web3 and DeFi.
 
 Issues, PRs, and content suggestions welcome at [github.com/raygroup/raygroup-defi-ux-mcp](https://github.com/raygroup/raygroup-defi-ux-mcp).
