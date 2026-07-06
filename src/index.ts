@@ -2,13 +2,15 @@
 /**
  * Ray Group DeFi UX MCP Server.
  *
- * Exposes the Ray Group DeFi UX rubric, named patterns, and cognitive-bias
- * glossary to AI agents via the Model Context Protocol over stdio.
+ * Exposes the Ray Group DeFi UX rubric, named patterns, cognitive-bias
+ * glossary, and (Pro tier) protocol-specific case studies to AI agents via
+ * the Model Context Protocol over stdio.
  *
- * v0.1 — free tier, 5 tools, local stdio. Premium tier (paid, hosted, with
- * screenshot-based audit + extended corpus) is on the roadmap.
+ * v0.2 — 6 tools. Free tier always works offline. Pro tier ($29/mo)
+ * unlocked by setting RAYGROUP_API_KEY in the MCP client config.
  *
- * Marketing page: https://raygroup.uk/products/defi-ux-mcp/
+ * Marketing page:  https://raygroup.uk/products/defi-ux-mcp/
+ * Pricing:         https://raygroup.uk/products/defi-ux-mcp/pricing/
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -38,14 +40,21 @@ import {
   searchDefiUxTool,
   handleSearchDefiUx,
 } from "./tools/search-defi-ux.js";
+import {
+  getCaseStudyTool,
+  handleGetCaseStudy,
+} from "./tools/get-case-study.js";
+import { resolveLicence } from "./licence.js";
 
 const SERVER_NAME = "raygroup-defi-ux";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.2.0";
 
 const server = new Server(
   { name: SERVER_NAME, version: SERVER_VERSION },
   { capabilities: { tools: {} } },
 );
+
+const licencePromise = resolveLicence();
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -54,6 +63,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       getRubricTool,
       getPatternTool,
       getGlossaryEntryTool,
+      getCaseStudyTool,
       listCategoriesTool,
     ],
   };
@@ -62,6 +72,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   const a = (args ?? {}) as Record<string, unknown>;
+  const licence = await licencePromise;
 
   switch (name) {
     case "search_defi_ux":
@@ -76,27 +87,40 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       });
 
     case "get_pattern":
-      return handleGetPattern({
-        slug: typeof a.slug === "string" ? a.slug : undefined,
-        category:
-          typeof a.category === "string"
-            ? (a.category as
-                | "onboarding"
-                | "transaction"
-                | "risk"
-                | "wallet"
-                | "trading"
-                | "error"
-                | "novice-expert")
-            : undefined,
-        rubricArea:
-          typeof a.rubricArea === "string" ? a.rubricArea : undefined,
-      });
+      return handleGetPattern(
+        {
+          slug: typeof a.slug === "string" ? a.slug : undefined,
+          category:
+            typeof a.category === "string"
+              ? (a.category as
+                  | "onboarding"
+                  | "transaction"
+                  | "risk"
+                  | "wallet"
+                  | "trading"
+                  | "error"
+                  | "novice-expert")
+              : undefined,
+          rubricArea:
+            typeof a.rubricArea === "string" ? a.rubricArea : undefined,
+        },
+        licence,
+      );
 
     case "get_glossary_entry":
-      return handleGetGlossaryEntry({
-        slug: typeof a.slug === "string" ? a.slug : undefined,
-      });
+      return handleGetGlossaryEntry(
+        { slug: typeof a.slug === "string" ? a.slug : undefined },
+        licence,
+      );
+
+    case "get_case_study":
+      return handleGetCaseStudy(
+        {
+          slug: typeof a.slug === "string" ? a.slug : undefined,
+          protocol: typeof a.protocol === "string" ? a.protocol : undefined,
+        },
+        licence,
+      );
 
     case "list_categories":
       return handleListCategories();
@@ -117,10 +141,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  const licence = await licencePromise;
+  const tierBadge = licence.valid ? "Pro" : "Free";
   // Note: stderr is the appropriate channel for diagnostic output in stdio MCP
   // servers; stdout is reserved for the MCP protocol itself.
   console.error(
-    `[${SERVER_NAME} v${SERVER_VERSION}] Ready on stdio. https://raygroup.uk/products/defi-ux-mcp/`,
+    `[${SERVER_NAME} v${SERVER_VERSION}] Ready on stdio (${tierBadge} tier). https://raygroup.uk/products/defi-ux-mcp/`,
   );
 }
 

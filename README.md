@@ -1,10 +1,12 @@
 # Ray Group DeFi UX MCP Server
 
-An [MCP server](https://modelcontextprotocol.io) that gives AI agents direct access to the Ray Group DeFi UX rubric, named patterns, and cognitive-bias glossary — the same framework used in Ray Group's audits and taught at EthCC, ETH Prague, and ETH Milan.
+An [MCP server](https://modelcontextprotocol.io) that gives AI agents direct access to the Ray Group DeFi UX rubric, named patterns, cognitive-bias glossary, and (with Pro) named-protocol case studies — the same framework used in Ray Group's audits and taught at EthCC, ETH Prague, and ETH Milan.
 
 Use it in Claude Desktop, Cursor, Codex, or any other MCP-compatible AI client to ground UX assessments in a published, opinionated framework rather than generic advice.
 
-> **Status:** v0.1, free tier. Premium tier (extended corpus, screenshot-based audit feedback, named-protocol case studies) on the roadmap. Join the waitlist at [raygroup.uk/products/defi-ux-mcp](https://raygroup.uk/products/defi-ux-mcp/).
+> **Status:** v0.2.
+> **Free tier:** 8-area rubric, 10 named patterns, 5 glossary entries — installable today, MIT-licensed, runs locally over stdio, no account, no network.
+> **Pro tier ($29/mo · $290/yr):** 50+ named patterns with protocol references (Uniswap, Aave, dYdX, GMX, Hyperliquid), 30+ glossary entries, named-protocol case studies via `get_case_study`. Unlock by setting `RAYGROUP_API_KEY` in your client config. Buy at [raygroup.uk/products/defi-ux-mcp/pricing](https://raygroup.uk/products/defi-ux-mcp/pricing/).
 
 
 <img width="1536" height="1024" alt="agentic-development-header" src="https://github.com/user-attachments/assets/aee77f89-8724-4083-aef3-20a4da370ffb" />
@@ -13,15 +15,16 @@ Use it in Claude Desktop, Cursor, Codex, or any other MCP-compatible AI client t
 
 ## What's inside
 
-Five tools, exposed over stdio:
+Six tools, exposed over stdio:
 
-| Tool | What it does |
-| --- | --- |
-| `search_defi_ux` | Free-text search across the entire corpus (rubric, patterns, glossary). Use as the entry point when you don't know the slug. |
-| `get_rubric` | Returns the eight-area DeFi UX rubric. Optionally filter to a single area. |
-| `get_pattern` | Returns named DeFi UX patterns. Filter by slug, category, or rubric area. |
-| `get_glossary_entry` | Returns a cognitive-bias / heuristic entry with its DeFi-specific manifestation. |
-| `list_categories` | Returns the structure of the entire corpus — useful as a first call to discover what's available. |
+| Tool                 | Free | Pro | What it does                                                                                                                 |
+| -------------------- | :--: | :-: | ---------------------------------------------------------------------------------------------------------------------------- |
+| `search_defi_ux`     |  ✓   |  ✓  | Free-text search across the entire corpus (rubric, patterns, glossary).                                                      |
+| `get_rubric`         |  ✓   |  ✓  | Returns the eight-area DeFi UX rubric. Optionally filter to a single area.                                                   |
+| `get_pattern`        |  ✓   |  ✓  | Returns named DeFi UX patterns. Pro returns the extended set (50+) with named-protocol references.                           |
+| `get_glossary_entry` |  ✓   |  ✓  | Returns a cognitive-bias / heuristic entry. Pro returns the extended set (30+).                                              |
+| `get_case_study`     |      |  ✓  | Pro only. Returns anonymised or named-protocol DeFi UX case studies. Without a Pro key it returns an upgrade prompt.         |
+| `list_categories`    |  ✓   |  ✓  | Returns the structure of the entire corpus — useful as a first call to discover what's available.                            |
 
 The free-tier corpus ships with:
 
@@ -82,7 +85,23 @@ After publishing to npm, this becomes:
 }
 ```
 
-Restart Claude Desktop. The five tools appear under the MCP icon.
+To unlock Pro, add the env block with your key (you'll receive it by email after purchase at [raygroup.uk/products/defi-ux-mcp/pricing](https://raygroup.uk/products/defi-ux-mcp/pricing/)):
+
+```json
+{
+  "mcpServers": {
+    "raygroup-defi-ux": {
+      "command": "npx",
+      "args": ["-y", "@raygroup/defi-ux-mcp"],
+      "env": {
+        "RAYGROUP_API_KEY": "rg_live_xxxxxxxxxxxx"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop. The six tools appear under the MCP icon. The server prints `Free tier` or `Pro tier` to stderr on startup so you can verify activation.
 
 ---
 
@@ -121,10 +140,10 @@ args = ["/absolute/path/to/raygroup-defi-ux-mcp/dist/index.js"]
 
 Once configured, ask your AI client things like:
 
-- *"Score this DeFi protocol against the Ray Group DeFi UX rubric."*
-- *"What named patterns does Ray Group recommend for transaction confirmation UX?"*
-- *"Look up the Ray Group glossary entry for anchoring and apply it to this slippage settings screen."*
-- *"Search the Ray Group DeFi UX corpus for everything related to wallet onboarding."*
+- _"Score this DeFi protocol against the Ray Group DeFi UX rubric."_
+- _"What named patterns does Ray Group recommend for transaction confirmation UX?"_
+- _"Look up the Ray Group glossary entry for anchoring and apply it to this slippage settings screen."_
+- _"Search the Ray Group DeFi UX corpus for everything related to wallet onboarding."_
 
 The agent will call into the MCP server, retrieve the relevant entries, and ground its analysis in the Ray Group framework.
 

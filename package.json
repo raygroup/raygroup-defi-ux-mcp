@@ -1,7 +1,7 @@
 {
   "name": "@raygroup/defi-ux-mcp",
-  "version": "0.1.0",
-  "description": "Ray Group's DeFi UX MCP server — gives AI agents direct access to the Ray Group DeFi UX rubric, named patterns, and cognitive-bias glossary.",
+  "version": "0.2.0",
+  "description": "Ray Group's DeFi UX MCP server — gives AI agents direct access to the Ray Group DeFi UX rubric, named patterns, and cognitive-bias glossary. Pro tier unlocks 50+ patterns, 30+ glossary entries, and named-protocol case studies.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
