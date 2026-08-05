@@ -6,6 +6,9 @@ Use it in Claude Desktop, Cursor, Codex, or any other MCP-compatible AI client t
 
 > **Status:** v0.1, free tier. Premium tier (extended corpus, screenshot-based audit feedback, named-protocol case studies) on the roadmap. Join the waitlist at [raygroup.uk/products/defi-ux-mcp](https://raygroup.uk/products/defi-ux-mcp/).
 
+
+<img width="1536" height="1024" alt="agentic-development-header" src="https://github.com/user-attachments/assets/aee77f89-8724-4083-aef3-20a4da370ffb" />
+
 ---
 
 ## What's inside
