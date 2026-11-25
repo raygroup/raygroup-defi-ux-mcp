@@ -3,10 +3,10 @@
  * Ray Group DeFi UX MCP Server.
  *
  * Exposes the Ray Group DeFi UX rubric, named patterns, cognitive-bias
- * glossary, and (Pro tier) protocol-specific case studies to AI agents via
- * the Model Context Protocol over stdio.
+ * glossary, personas, visual references, flow graphs, and (Pro tier)
+ * screenshot / protocol audit worksheets to AI agents via MCP over stdio.
  *
- * v0.2 — 6 tools. Free tier always works offline. Pro tier ($29/mo)
+ * v0.3 — 11 tools. Free tier always works offline. Pro tier ($29/mo)
  * unlocked by setting RAYGROUP_API_KEY in the MCP client config.
  *
  * Marketing page:  https://raygroup.uk/products/defi-ux-mcp/
@@ -44,10 +44,30 @@ import {
   getCaseStudyTool,
   handleGetCaseStudy,
 } from "./tools/get-case-study.js";
+import {
+  getPersonaTool,
+  handleGetPersona,
+} from "./tools/get-persona.js";
+import {
+  getReferenceTool,
+  handleGetReference,
+} from "./tools/get-reference.js";
+import {
+  getFlowTool,
+  handleGetFlow,
+} from "./tools/get-flow.js";
+import {
+  auditScreenshotTool,
+  handleAuditScreenshot,
+} from "./tools/audit-screenshot.js";
+import {
+  auditProtocolTool,
+  handleAuditProtocol,
+} from "./tools/audit-protocol.js";
 import { resolveLicence } from "./licence.js";
 
 const SERVER_NAME = "raygroup-defi-ux";
-const SERVER_VERSION = "0.2.0";
+const SERVER_VERSION = "0.3.0";
 
 const server = new Server(
   { name: SERVER_NAME, version: SERVER_VERSION },
@@ -64,6 +84,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       getPatternTool,
       getGlossaryEntryTool,
       getCaseStudyTool,
+      getPersonaTool,
+      getReferenceTool,
+      getFlowTool,
+      auditScreenshotTool,
+      auditProtocolTool,
       listCategoriesTool,
     ],
   };
@@ -122,8 +147,67 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         licence,
       );
 
+    case "get_persona":
+      return handleGetPersona(
+        {
+          slug: typeof a.slug === "string" ? a.slug : undefined,
+          archetype:
+            typeof a.archetype === "string" ? a.archetype : undefined,
+        },
+        licence,
+      );
+
+    case "get_reference":
+      return handleGetReference(
+        {
+          slug: typeof a.slug === "string" ? a.slug : undefined,
+          surface: typeof a.surface === "string" ? a.surface : undefined,
+          protocol: typeof a.protocol === "string" ? a.protocol : undefined,
+        },
+        licence,
+      );
+
+    case "get_flow":
+      return handleGetFlow(
+        {
+          slug: typeof a.slug === "string" ? a.slug : undefined,
+          kit: typeof a.kit === "string" ? a.kit : undefined,
+        },
+        licence,
+      );
+
+    case "audit_screenshot":
+      return handleAuditScreenshot(
+        {
+          surfaceType:
+            typeof a.surfaceType === "string" ? a.surfaceType : undefined,
+          observedElements:
+            typeof a.observedElements === "string"
+              ? a.observedElements
+              : undefined,
+          imageUrl: typeof a.imageUrl === "string" ? a.imageUrl : undefined,
+          persona: typeof a.persona === "string" ? a.persona : undefined,
+          protocolHint:
+            typeof a.protocolHint === "string" ? a.protocolHint : undefined,
+        },
+        licence,
+      );
+
+    case "audit_protocol":
+      return handleAuditProtocol(
+        {
+          protocolName:
+            typeof a.protocolName === "string" ? a.protocolName : undefined,
+          protocolUrl:
+            typeof a.protocolUrl === "string" ? a.protocolUrl : undefined,
+          protocolType:
+            typeof a.protocolType === "string" ? a.protocolType : undefined,
+        },
+        licence,
+      );
+
     case "list_categories":
-      return handleListCategories();
+      return handleListCategories(licence);
 
     default:
       return {
@@ -144,8 +228,6 @@ async function main() {
 
   const licence = await licencePromise;
   const tierBadge = licence.valid ? "Pro" : "Free";
-  // Note: stderr is the appropriate channel for diagnostic output in stdio MCP
-  // servers; stdout is reserved for the MCP protocol itself.
   console.error(
     `[${SERVER_NAME} v${SERVER_VERSION}] Ready on stdio (${tierBadge} tier). https://raygroup.uk/products/defi-ux-mcp/`,
   );

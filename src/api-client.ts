@@ -15,6 +15,7 @@ import path from "node:path";
 
 import type { Pattern } from "./data/patterns.js";
 import type { GlossaryEntry } from "./data/glossary.js";
+import type { Persona } from "./data/personas-free.js";
 
 const CACHE_DIR = path.join(os.homedir(), ".raygroup-mcp");
 const CACHE_FILE = path.join(CACHE_DIR, "corpus-cache.json");
@@ -33,16 +34,69 @@ export type CaseStudy = {
   references: { label: string; url: string }[];
 };
 
+export type VisualReference = {
+  slug: string;
+  title: string;
+  protocol: string;
+  surface: string;
+  summary: string;
+  whatToLookFor: string[];
+  goodSignals: string[];
+  antiPatterns: string[];
+  rubricAreas: string[];
+  patternSlugs: string[];
+  glossarySlugs: string[];
+  references: { label: string; url: string }[];
+};
+
+export type FlowStep = {
+  id: string;
+  label: string;
+  kind: string;
+  description: string;
+  rubricAreas?: string[];
+  patternSlugs?: string[];
+};
+
+export type FlowEdge = {
+  from: string;
+  to: string;
+  when: string;
+  path: "happy" | "unhappy" | "edge";
+};
+
+export type FlowGraph = {
+  slug: string;
+  title: string;
+  kit: string;
+  summary: string;
+  personas: string[];
+  steps: FlowStep[];
+  edges: FlowEdge[];
+  edgeCaseNotes: string[];
+};
+
 type CorpusBundle = {
   patterns?: Pattern[];
   glossary?: GlossaryEntry[];
   caseStudies?: CaseStudy[];
+  personas?: Persona[];
+  references?: VisualReference[];
+  flows?: FlowGraph[];
 };
 
 type DiskCache = Record<
   string,
   { fetchedAt: number; data: CorpusBundle }
 >;
+
+type CorpusEndpoint =
+  | "patterns"
+  | "glossary"
+  | "case-studies"
+  | "personas"
+  | "references"
+  | "flows";
 
 const memoryCache = new Map<string, CorpusBundle>();
 
@@ -67,7 +121,7 @@ function writeDiskCache(cache: DiskCache): void {
 async function fetchEndpoint<T extends CorpusBundle>(
   apiBase: string,
   apiKey: string,
-  endpoint: "patterns" | "glossary" | "case-studies",
+  endpoint: CorpusEndpoint,
 ): Promise<T | null> {
   const cacheKey = `${endpoint}@${apiKey.slice(-8)}`;
 
@@ -145,4 +199,40 @@ export async function fetchProCaseStudies(
     "case-studies",
   );
   return data?.caseStudies ?? [];
+}
+
+export async function fetchProPersonas(
+  apiBase: string,
+  apiKey: string,
+): Promise<Persona[]> {
+  const data = await fetchEndpoint<{ personas?: Persona[] }>(
+    apiBase,
+    apiKey,
+    "personas",
+  );
+  return data?.personas ?? [];
+}
+
+export async function fetchProReferences(
+  apiBase: string,
+  apiKey: string,
+): Promise<VisualReference[]> {
+  const data = await fetchEndpoint<{ references?: VisualReference[] }>(
+    apiBase,
+    apiKey,
+    "references",
+  );
+  return data?.references ?? [];
+}
+
+export async function fetchProFlows(
+  apiBase: string,
+  apiKey: string,
+): Promise<FlowGraph[]> {
+  const data = await fetchEndpoint<{ flows?: FlowGraph[] }>(
+    apiBase,
+    apiKey,
+    "flows",
+  );
+  return data?.flows ?? [];
 }
